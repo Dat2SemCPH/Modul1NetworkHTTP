@@ -201,6 +201,10 @@ public class ServerMain {
 //        System.out.println( getFile("adding.html") );
     }
 
+    /*
+    It is not part of the curriculum (pensum) to understand this method.
+    You are more than welcome to bang your head on it though.
+    */
     private static String getResourceFileContents( String fileName ) throws Exception {
         //Get file from resources folder
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
