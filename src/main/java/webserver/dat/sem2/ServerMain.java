@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 public class ServerMain {
 
     public static void main( String[] args ) throws Exception {
-        picoServer02();
+        picoServer06();
     }
 
     /*
@@ -26,7 +26,7 @@ public class ServerMain {
     It ignores all path and parameters and really just tell you what date it is
      */
     private static void picoServer01() throws Exception {
-        final ServerSocket server = new ServerSocket( 8080 );
+        final ServerSocket server = new ServerSocket( 65080 );
         System.out.println( "Listening for connection on port 8080 ...." );
         while ( true ) { // spin forever } }
             try ( Socket socket = server.accept() ) {
