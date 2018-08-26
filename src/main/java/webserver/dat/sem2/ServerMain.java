@@ -18,7 +18,8 @@ import java.util.Map.Entry;
 public class ServerMain {
 
     public static void main( String[] args ) throws Exception {
-        picoServer06();
+        picoServer06B();
+        //System.out.println( RES );
     }
 
     /*
@@ -92,7 +93,6 @@ public class ServerMain {
                 for ( Entry e : req.getHeaders().entrySet() ) {
                     System.out.println( "    " + e.getKey() + ": " + e.getValue() );
                 }
-                
 
                 System.out.println( "---- BODY ----" );
                 System.out.println( req.getBody() );
@@ -173,7 +173,7 @@ public class ServerMain {
                 HttpRequest req = new HttpRequest( socket.getInputStream() );
                 String path = req.getPath();
                 if ( path.endsWith( ".html" ) || path.endsWith( ".txt" ) ) {
-                    String html = getResourceFileContents( root+path );
+                    String html = getResourceFileContents( root + path );
                     String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + html;
                     socket.getOutputStream().write( httpResponse.getBytes( "UTF-8" ) );
                 } else {
@@ -197,14 +197,109 @@ public class ServerMain {
                     socket.close();
                 }
             }
+            count++;
         }
 //        System.out.println( getFile("adding.html") );
     }
 
     /*
+    This server requires static files to be named ".html" or ".txt". Other path
+    names is assumed to be a name of a service.
+     */
+    private static void picoServer06A() throws Exception {
+        final ServerSocket server = new ServerSocket( 8080 );
+        System.out.println( "Listening for connection on port 8080 ...." );
+        String root = "pages";
+        int count = 0;
+        while ( true ) { // keep listening (as is normal for a server)
+            Socket socket = server.accept();;
+            try {
+                System.out.println( "---- reqno: " + count + " ----" );
+                HttpRequest req = new HttpRequest( socket.getInputStream() );
+                String path = req.getPath();
+                if ( path.endsWith( ".html" ) || path.endsWith( ".txt" ) ) {
+                    String html = getResourceFileContents( root + path );
+                    String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + html;
+                    socket.getOutputStream().write( httpResponse.getBytes( "UTF-8" ) );
+                } else {
+                    String res = "";
+                    switch ( path ) {
+                        case "/addournumbers":
+                            res = addOurNumbersA( req );
+                            break;
+                        case "/mulournumbers":
+                            res = mulOurNumbersA( req );
+                            break;
+                        default:
+                            res = "Unknown path: " + path;
+                    }
+                    String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + res;
+                    socket.getOutputStream().write( httpResponse.getBytes( "UTF-8" ) );
+                }
+            } catch ( Exception ex ) {
+                String httpResponse = "HTTP/1.1 500 Internal error\r\n\r\n"
+                        + "UUUUPS: " + ex.getLocalizedMessage();
+                socket.getOutputStream().write( httpResponse.getBytes( "UTF-8" ) );
+            } finally {
+                if ( socket != null ) {
+                    socket.close();
+                }
+            }
+            count++;
+        }
+//        System.out.println( getFile("adding.html") );
+    }
+
+    /*
+    This server requires static files to be named ".html" or ".txt". Other path
+    names is assumed to be a name of a service.
+     */
+    private static void picoServer06B() throws Exception {
+        final ServerSocket server = new ServerSocket( 8080 );
+        System.out.println( "Listening for connection on port 8080 ...." );
+        String root = "pages";
+        int count = 0;
+        while ( true ) { // keep listening (as is normal for a server)
+            Socket socket = server.accept();;
+            try {
+                System.out.println( "---- reqno: " + count + " ----" );
+                HttpRequest req = new HttpRequest( socket.getInputStream() );
+                String path = req.getPath();
+                if ( path.endsWith( ".html" ) || path.endsWith( ".txt" ) ) {
+                    String html = getResourceFileContents( root + path );
+                    String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + html;
+                    socket.getOutputStream().write( httpResponse.getBytes( "UTF-8" ) );
+                } else {
+                    String res = "";
+                    switch ( path ) {
+                        case "/calculate":
+                            res = calcOurNumbers( req );
+                            break;
+                        default:
+                            res = "Unknown path: " + path;
+                    }
+                    String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + res;
+                    socket.getOutputStream().write( httpResponse.getBytes( "UTF-8" ) );
+                }
+            } catch ( Exception ex ) {
+                String httpResponse = "HTTP/1.1 500 Internal error\r\n\r\n"
+                        + "UUUUPS: " + ex.getLocalizedMessage();
+                socket.getOutputStream().write( httpResponse.getBytes( "UTF-8" ) );
+            } finally {
+                if ( socket != null ) {
+                    socket.close();
+                }
+            }
+            count++;
+        }
+//        System.out.println( getFile("adding.html") );
+    }
+    
+    
+    /*
     It is not part of the curriculum (pensum) to understand this method.
     You are more than welcome to bang your head on it though.
-    */
+     */
     private static String getResourceFileContents( String fileName ) throws Exception {
         //Get file from resources folder
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
@@ -215,18 +310,63 @@ public class ServerMain {
 
     }
 
+    private static String generateHTML( String template, String... substitutions ) throws Exception {
+        String html = getResourceFileContents( template );
+        for ( int index = 0; index < substitutions.length; index++ ) {
+            html = html.replace( "$" + index, substitutions[ index ] );
+        }
+        return html;
+    }
+
     private static String addOurNumbers( HttpRequest req ) {
         String first = req.getParameter( "firstnumber" );
         String second = req.getParameter( "secondnumber" );
         int fi = Integer.parseInt( first );
         int si = Integer.parseInt( second );
         String res = RES;
-        res = res.replace( "$0", first);
-        res = res.replace( "$1", second);
-        res = res.replace( "$2", String.valueOf( fi+si ) );
+        res = res.replace( "$0", first );
+        res = res.replace( "$1", second );
+        res = res.replace( "$2", String.valueOf( fi + si ) );
         return res;
     }
 
+    private static String addOurNumbersA( HttpRequest req ) throws Exception {
+        String first = req.getParameter( "firstnumber" );
+        String second = req.getParameter( "secondnumber" );
+        int fi = Integer.parseInt( first );
+        int si = Integer.parseInt( second );
+        String sumText = String.format( "%d + %d er %d", fi, si, fi + si );
+        String html = generateHTML( "calc.tmpl", sumText, "calculatingA" );
+        return html;
+    }
+
+    private static String mulOurNumbersA( HttpRequest req ) throws Exception {
+        String first = req.getParameter( "firstnumber" );
+        String second = req.getParameter( "secondnumber" );
+        int fi = Integer.parseInt( first );
+        int si = Integer.parseInt( second );
+        String sumText = String.format( "%d * %d er %d", fi, si, fi * si );
+        String html = generateHTML( "calc.tmpl", sumText, "calculatingA" );
+        return html;
+    }
+
+
+    private static String calcOurNumbers( HttpRequest req ) throws Exception {
+        String actionKind = req.getParameter( "actionKind" );
+        String first = req.getParameter( "firstnumber" );
+        String second = req.getParameter( "secondnumber" );
+        int fi = Integer.parseInt( first );
+        int si = Integer.parseInt( second );
+        String resText = "Unknown operation";
+        if ("Add".equals( actionKind)){
+            resText = String.format( "%d + %d er %d", fi, si, fi + si );    
+        } else if ("Mul".equals( actionKind)){
+            resText = String.format( "%d * %d er %d", fi, si, fi * si ); 
+        }
+        return generateHTML( "calc.tmpl", resText, "calculatingB" );
+    }
+    
+    
     private static String RES = "<!DOCTYPE html>\n"
             + "<html lang=\"da\">\n"
             + "    <head>\n"
@@ -239,5 +379,4 @@ public class ServerMain {
             + "        <a href=\"adding.html\">Læg to andre tal sammen</a>\n"
             + "    </body>\n"
             + "</html>\n";
-
 }
