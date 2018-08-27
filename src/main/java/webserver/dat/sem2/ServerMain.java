@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 public class ServerMain {
 
     public static void main( String[] args ) throws Exception {
-        picoServer06B();
+        picoServer06A();
         //System.out.println( RES );
     }
 
@@ -345,8 +345,8 @@ public class ServerMain {
         String second = req.getParameter( "secondnumber" );
         int fi = Integer.parseInt( first );
         int si = Integer.parseInt( second );
-        String sumText = String.format( "%d * %d er %d", fi, si, fi * si );
-        String html = generateHTML( "calc.tmpl", sumText, "calculatingA" );
+        String mulText = String.format( "%d * %d er %d", fi, si, fi * si );
+        String html = generateHTML( "calc.tmpl", mulText, "calculatingA" );
         return html;
     }
 
@@ -379,4 +379,5 @@ public class ServerMain {
             + "        <a href=\"adding.html\">Læg to andre tal sammen</a>\n"
             + "    </body>\n"
             + "</html>\n";
+    
 }
