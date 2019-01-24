@@ -27,7 +27,7 @@ public class ServerMain {
      */
     private static void picoServer01() throws Exception {
         final ServerSocket server = new ServerSocket( 65080 );
-        System.out.println( "Listening for connection on port 8080 ...." );
+        System.out.println( "Listening for connection on port 65080 ...." );
         while ( true ) { // spin forever } }
             try ( Socket socket = server.accept() ) {
                 Date today = new Date();
